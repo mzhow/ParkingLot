@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func AdminHandler(w http.ResponseWriter, r *http.Request) {
+func adminHandler(w http.ResponseWriter, r *http.Request) {
 	sess := globalSessions.SessionStart(w, r)
 	loginUsername := sess.Get("username")
 	loginPassword := sess.Get("password")
@@ -29,7 +29,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		//	return
 		//}
 	}
-	tmpl, err := template.ParseFiles("/index.html")
+	tmpl, err := template.ParseFiles("/admin_login.html")
 	checkErr(err)
 	err = tmpl.Execute(w, nil)
 	checkErr(err)

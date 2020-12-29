@@ -1,17 +1,17 @@
 package memory
 
 import (
+	"ParkingLot/session"
 	"container/list"
 	"sync"
 	"time"
-	"ParkingLot/session"
 )
 
 var pder = &FromMemory{list: list.New()}
 
 func Init() {
 	pder.sessions = make(map[string]*list.Element, 0)
-	//注册  memory 调用的时候一定要一致
+	//注册memory调用的时候一定要一致
 	session.Register("memory", pder)
 }
 
@@ -50,7 +50,7 @@ func (st *SessionStore) SessionID() string {
 	return st.sid
 }
 
-//session来自内存 实现
+//session来自内存实现
 type FromMemory struct {
 	lock     sync.Mutex               //用来锁
 	sessions map[string]*list.Element //用来存储在内存

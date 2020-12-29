@@ -43,12 +43,18 @@ func Handlers() {
 	http.Handle("/static/", http.FileServer(http.Dir("./views")))
 	http.Handle("/pages/", http.FileServer(http.Dir("./views")))
 
-	http.HandleFunc("/", IndexHandler)
-	http.HandleFunc("/admin", AdminHandler)
+	http.HandleFunc("/", loginHandler)
+	http.HandleFunc("/register", registerHandler)
+	http.HandleFunc("/forgot", forgotHandler)
+	http.HandleFunc("/doLogin", doLoginHandler)
+	http.HandleFunc("/checkToken", checkTokenHandler)
+
 	//http.HandleFunc("/adminLogin", controller.AdminLoginHandler)
 
+	http.HandleFunc("/admin", adminHandler)
+
 	//http.HandleFunc("/doLogin", doLoginHandler)
-	//http.HandleFunc("/register", registerHandler)
+
 	//http.HandleFunc("/doRegister", doRegisterHandler)
 	//http.HandleFunc("/doLogout", doLogoutHandler)
 
