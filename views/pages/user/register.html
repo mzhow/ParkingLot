@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 	<meta charset="utf-8">
-	<meta name="author" content="Kodinger">
+	<meta name="author" content="Mei Zuhao">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Register - Parking Lot System</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -24,15 +24,15 @@
 						<form method="POST" class="login-validation" novalidate="" id="registerForm" name="registerForm">
 							<div class="form-group">
 								<label for="username">用户名</label>
-								<input id="username" type="text" class="form-control" name="username" value="" required autofocus>
+								<input id="username" type="text" class="form-control" name="username" value="" onkeyup="usernameValid()" required autofocus>
 								<div class="invalid-feedback">
-									请输入用户名
+									用户名不能为空
 								</div>
 							</div>
 
 							<div class="form-group">
 								<label for="car_name">车牌号</label>
-								<input id="car_name" type="text" class="form-control" name="car_name" value="" onkeyup="showLicenseHint()" required>
+								<input id="car_name" type="text" class="form-control" name="car_name" value="" onkeyup="licenseValid()" required>
 								<div class="invalid-feedback">
 									请输入正确的车牌号
 								</div>
@@ -40,9 +40,9 @@
 
 							<div class="form-group">
 								<label for="password">密码</label>
-								<input id="password" type="password" class="form-control" name="password" required>
+								<input id="password" type="password" class="form-control" name="password" minlength="8" onkeyup="passwordValid()" required>
 								<div class="invalid-feedback">
-									请输入密码
+									密码不能为空且至少8位
 								</div>
 							</div>
 
@@ -52,7 +52,7 @@
 
 							<div class="form-group">
 								<div class="custom-checkbox custom-control">
-									<input type="checkbox" name="agree" id="agree" class="custom-control-input" required="">
+									<input type="checkbox" name="agree" id="agree" class="custom-control-input" onclick="agreeCheckboxValid()" required="">
 									<label for="agree" class="custom-control-label">同意<a href="#">条款和细则</a></label>
 									<div class="invalid-feedback">
 										您必须同意我们的条款和细则才能注册

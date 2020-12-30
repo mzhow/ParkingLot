@@ -12,12 +12,11 @@ package model
 //}
 
 type Spot struct {
-	SpotName    string
-	SpotSection string
-	IsEmpty     int
-	Indoor      int
-	Charging    int
-	HourlyFee   int
+	SpotName  string
+	IsEmpty   int
+	Indoor    int
+	Charging  int
+	HourlyFee int
 }
 
 /*
@@ -32,4 +31,4 @@ CREATE TABLE IF NOT EXISTS spot (
 	valid INT NOT NULL COMMENT '车位是否有效',
     PRIMARY KEY (spot_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
- */
+*/

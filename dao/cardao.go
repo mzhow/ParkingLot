@@ -1,25 +1,24 @@
 package dao
 
-func InsertCar(carName string, isParking int) {
-	db := InitDB()
-	defer db.Close()
+import "ParkingLot/model"
 
-	stmt, err := db.Prepare("INSERT car SET car_name=?, is_parking=?")
-	checkErr(err)
-
-	_, err = stmt.Exec(carName, isParking)
-	checkErr(err)
+func InsertCar(carName string, isParking int) error {
+	insert := "INSERT INTO car(car_name, is_parking)values(?,?)"
+	_, err := DB.Exec(insert, carName, isParking)
+	return err
 }
 
 func GetCarId(carName string) (carId int) {
-	db := InitDB()
-	defer db.Close()
-	query := "SELECT car_id FROM car WHERE car_name='" + carName + "';"
-	rows, err := db.Query(query)
-	checkErr(err)
-	for rows.Next() {
-		err = rows.Scan(&carId)
-		checkErr(err)
-	}
+	query := "SELECT car_id FROM car WHERE car_name=?;"
+	row := DB.QueryRow(query, carName)
+	row.Scan(&carId)
 	return carId
+}
+
+func GetCar(carId int) *model.Car {
+	query := "SELECT car_name, is_parking, entry_time, out_time FROM car WHERE car_id=?;"
+	row := DB.QueryRow(query, carId)
+	car := &model.Car{}
+	row.Scan(&car.CarName, &car.IsParking, &car.EntryTime, &car.OutTime)
+	return car
 }

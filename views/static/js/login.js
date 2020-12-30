@@ -4,12 +4,10 @@ var userLogin = new Vue({
     data: {
         show: false,
         loginMsg: "",
-        token: ""
     },
 
     created(){
-        //页面加载时就从本地通过localstorage获取存储的token值
-        this.token =  localStorage.getItem('token')
+
     },
 
     mounted(){
@@ -17,12 +15,12 @@ var userLogin = new Vue({
         this.checkToken();
     },
 
-    // 点击菜单使用的函数
     methods: {
         checkToken() {
             if (localStorage.getItem('token')==null){
                 return;
             }
+            // 如果有token，先向后端请求数据后再请求页面
             var xmlhttp;
             if (window.XMLHttpRequest){
                 // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
@@ -31,8 +29,20 @@ var userLogin = new Vue({
                 // IE6, IE5 浏览器执行代码
                 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
             }
-            xmlhttp.open("POST","/checkToken",false);
-            xmlhttp.setRequestHeader('Authorization', this.token);
+            xmlhttp.onreadystatechange=function(){
+                if (xmlhttp.readyState===4 && xmlhttp.status===200){
+                    var obj = JSON.parse(xmlhttp.responseText);
+                    if (obj.valid === 1) {
+                        var params = {
+                            "Authorization": localStorage.getItem('token')
+                        };
+                        httpPost("/index", params);
+                    }
+                }
+            }
+            xmlhttp.open("POST","/checkToken",true);
+            xmlhttp.setRequestHeader("Authorization", localStorage.getItem('token'));
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
             xmlhttp.send();
         },
 
@@ -58,12 +68,12 @@ var userLogin = new Vue({
             xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
             xmlhttp.send("username="+username+"&password="+password);
             var obj = JSON.parse(xmlhttp.responseText);
-            if (obj.valid == 1){
+            if (obj.valid === 1){
                 localStorage.setItem('token',obj.token);
                 this.checkToken();
             }else{
                 $("form").removeClass('was-validated');
-                this.loginMsg="用户名或密码错误";
+                this.loginMsg=obj.message;
                 this.show=true;
             }
         },
@@ -75,4 +85,24 @@ var userLogin = new Vue({
     },
     delimiters:['{[',']}']
 })
+
+//发送POST请求跳转到指定页面
+function httpPost(URL, PARAMS) {
+    var temp = document.createElement("form");
+    temp.action = URL;
+    temp.method = "POST";
+    temp.style.display = "none";
+
+    for (var x in PARAMS) {
+        var opt = document.createElement("textarea");
+        opt.name = x;
+        opt.value = PARAMS[x];
+        temp.appendChild(opt);
+    }
+
+    document.body.appendChild(temp);
+    temp.submit();
+
+    return temp;
+}
 

@@ -19,7 +19,7 @@ func init() {
 		"goSessionID",
 		3600)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ERROR: ", err)
 		return
 	}
 	go globalSessions.GC()
@@ -51,11 +51,11 @@ func Handlers() {
 
 	//http.HandleFunc("/adminLogin", controller.AdminLoginHandler)
 
-	http.HandleFunc("/admin", adminHandler)
+	http.HandleFunc("/index", indexHandler)
 
 	//http.HandleFunc("/doLogin", doLoginHandler)
 
-	//http.HandleFunc("/doRegister", doRegisterHandler)
+	http.HandleFunc("/doRegister", doRegisterHandler)
 	//http.HandleFunc("/doLogout", doLogoutHandler)
 
 }

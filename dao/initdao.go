@@ -2,6 +2,9 @@ package dao
 
 import (
 	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"time"
 )
 
 var DB *sql.DB
@@ -15,6 +18,10 @@ func init() {
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
+}
+
+func timeNow() string {
+	return time.Now().Format("2006-01-02  15:04:05")
 }

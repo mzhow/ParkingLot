@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"ParkingLot/dao"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -24,23 +25,24 @@ func ComparePasswords(encodePassword string, loginPassword string) bool {
 }
 
 const (
-	SECRETKEY = "3bf84u4hr83x7ru84i73he737y4u" // 私钥
+	SECRETKEY = "3bf84hr2g1xr4i96pe7v5y" // 私钥
 )
 
-type JwtRes struct {
+type ResData struct {
 	Valid    int    `json:"valid"`
 	Username string `json:"username"`
 	Token    string `json:"token"`
+	Message  string `json:"message"`
 }
 
 //生成token
 func CreateToken(username string) string {
-	maxAge := 60 * 60 * 2
+	maxAge := 6
 	claims := jwt.StandardClaims{
 		Audience:  username,
 		IssuedAt:  time.Now().Unix(),
 		ExpiresAt: time.Now().Add(time.Duration(maxAge) * time.Second).Unix(),
-		NotBefore: time.Now().Add(time.Duration(maxAge) * time.Second).Unix(),
+		NotBefore: time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(SECRETKEY))
@@ -63,4 +65,20 @@ func ParseToken(tokenString string) (*jwt.StandardClaims, error) {
 	} else {
 		return nil, err
 	}
+}
+
+func checkToken(token string) bool {
+	if token == "null" || token == "" {
+		return false
+	}
+	parseToken, err := ParseToken(token)
+	if err != nil {
+		return false
+	}
+	username := parseToken.Audience
+	// token错误
+	if dao.CheckUsernameValid(username) {
+		return true
+	}
+	return false
 }
