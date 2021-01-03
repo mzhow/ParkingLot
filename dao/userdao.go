@@ -30,13 +30,15 @@ func UserDetail(username string) *model.UserDetail {
 	//		&detail.Booking.CarName, &detail.Booking.SpotName, &detail.Booking.StartTime, &detail.Booking.EndTime)
 	//return detail
 
-	query := "SELECT user_id, role_id, username, car_id, booking_id FROM user WHERE valid=1 AND username=?"
+	query := "SELECT user_id, role_id, username, car_id, booking_id, fee FROM user WHERE valid=1 AND username=?"
 	row := DB.QueryRow(query, username)
 	detail := &model.UserDetail{}
-	var carId, bookingId int
-	row.Scan(&detail.UserId, &detail.RoleId, &detail.Username, &carId, &bookingId)
+	var roleId, carId, bookingId int
+	row.Scan(&detail.UserId, &roleId, &detail.Username, &carId, &bookingId, &detail.Fee)
+	detail.RoleName = GetRoleName(roleId)
 	detail.Car = GetCar(carId)
-	detail.Booking = GetBooking(bookingId)
+	detail.Booking = GetBookingTime(bookingId)
+	detail.Spot = GetSpot(bookingId)
 	return detail
 }
 
@@ -64,14 +66,40 @@ func ExistUsernameOrCarName(username string, carName string) bool {
 	}
 }
 
-func InsertUser(roleId int, carId int, username string, password string, valid int) error {
-	insert := "INSERT INTO user(role_id,car_id,username,password,valid)values(?,?,?,?,?)"
-	_, err := DB.Exec(insert, roleId, carId, username, password, valid)
+func InsertUser(roleId int, carId int, username string, password string, fee float32, valid int) error {
+	insert := "INSERT INTO user(role_id,car_id,username,password,fee,valid)values(?,?,?,?,?,?)"
+	_, err := DB.Exec(insert, roleId, carId, username, password, fee, valid)
 	return err
 }
 
+// 更新用户登录、登出时间
 func UpdateLoginTime(username string) error {
 	update := "UPDATE user SET login_time=? WHERE username=?"
 	_, err := DB.Exec(update, timeNow(), username)
+	return err
+}
+func UpdateLogoutTime(username string) error {
+	update := "UPDATE user SET logout_time=? WHERE username=?"
+	_, err := DB.Exec(update, timeNow(), username)
+	return err
+}
+
+func GetRoleName(roleId int) (roleName string) {
+	query := "SELECT role_name FROM role WHERE role_id=?"
+	row := DB.QueryRow(query, roleId)
+	row.Scan(&roleName)
+	return roleName
+}
+
+func GetBookingId(username string) (bookingId int) {
+	query := "SELECT booking_id FROM user WHERE username=?"
+	row := DB.QueryRow(query, username)
+	row.Scan(&bookingId)
+	return bookingId
+}
+
+func UpdateUserFee(username string, fee float32) error {
+	update := "UPDATE user SET fee=? WHERE username=?"
+	_, err := DB.Exec(update, fee, username)
 	return err
 }

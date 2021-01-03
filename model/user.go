@@ -12,8 +12,9 @@ package model
 
 type UserDetail struct {
 	UserId   int
-	RoleId   int
+	RoleName string
 	Username string
+	Fee      float32
 	Car      *Car
 	Spot     *Spot
 	Booking  *Booking
@@ -29,12 +30,11 @@ CREATE TABLE IF NOT EXISTS user (
 	password VARCHAR(100) NOT NULL COMMENT '加密后的密码',
 	login_time DATETIME COMMENT '上次登录时间',
 	logout_time DATETIME COMMENT '上次登出时间',
+	fee FLOAT NOT NULL COMMENT '待支付费用',
 	valid INT NOT NULL COMMENT '用户是否有效',
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-*/
 
-/*
 CREATE TABLE IF NOT EXISTS role (
 	role_id INT UNSIGNED COMMENT '角色ID',
 	role_name VARCHAR(50) NOT NULL COMMENT '角色名(1-车主 2-管理员 3-超级管理员)',

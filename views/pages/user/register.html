@@ -7,7 +7,6 @@
 	<title>Register - Parking Lot System</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/login.css">
-	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 </head>
 
 <body class="login-page">
@@ -46,8 +45,8 @@
 								</div>
 							</div>
 
-							<div class="form-msg" v-if="show">
-								<p>{[registerMsg]}</p>
+							<div class="form-msg">
+								<p id="form-msg"></p>
 							</div>
 
 							<div class="form-group">
@@ -61,7 +60,7 @@
 							</div>
 
 							<div class="form-group m-0">
-								<button @click="Register()" type="button" class="btn btn-primary btn-block">
+								<button onclick="Register()" type="button" class="btn btn-primary btn-block">
 									注册
 								</button>
 							</div>

@@ -1,93 +1,70 @@
-var userRegister = new Vue({
-    el: '#register',
-
-    data: {
-        show: false,
-        registerMsg: "",
-    },
-
-    created(){
-
-    },
-
-    mounted(){
-        // localStorage.removeItem('token'); // 是否在加载网页时清空token
-        // this.checkToken();
-    },
-
-    // 点击菜单使用的函数
-    methods: {
-        checkToken() {
-            if (localStorage.getItem('token')==null){
-                return;
-            }
-            // 如果有token，先向后端请求数据后再请求页面
-            var xmlhttp;
-            if (window.XMLHttpRequest){
-                // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-                xmlhttp=new XMLHttpRequest();
-            }else{
-                // IE6, IE5 浏览器执行代码
-                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            xmlhttp.onreadystatechange=function(){
-                if (xmlhttp.readyState===4 && xmlhttp.status===200){
-                    var obj = JSON.parse(xmlhttp.responseText);
-                    if (obj.valid === 1) {
-                        var params = {
-                            "Authorization": localStorage.getItem('token')
-                        };
-                        httpPost("/index", params);
-                    }
-                }
-            }
-            xmlhttp.open("POST","/checkToken",true);
-            xmlhttp.setRequestHeader("Authorization", localStorage.getItem('token'));
-            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xmlhttp.send();
-        },
-
-        Register() {
-            var frm = document.getElementById("registerForm")
-            if (frm.checkValidity() === false || !isLicensePlate()) {
-                event.preventDefault();
-                event.stopPropagation();
-                usernameValid();
-                licenseValid();
-                passwordValid();
-                agreeCheckboxValid();
-                return;
-            }
-            var xmlhttp;
-            var username=registerForm.username.value;
-            var car_name=registerForm.car_name.value;
-            var password=registerForm.password.value;
-            if (window.XMLHttpRequest){
-                // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-                xmlhttp=new XMLHttpRequest();
-            }else{
-                // IE6, IE5 浏览器执行代码
-                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            xmlhttp.open("POST","/doRegister",false);
-            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xmlhttp.send("username="+username+"&car_name="+car_name+"&password="+password);
+function checkToken() {
+    if (localStorage.getItem('token')==null){
+        return;
+    }
+    // 如果有token，先向后端请求数据后再请求页面
+    var xmlhttp;
+    if (window.XMLHttpRequest){
+        // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+        xmlhttp=new XMLHttpRequest();
+    }else{
+        // IE6, IE5 浏览器执行代码
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function(){
+        if (xmlhttp.readyState===4 && xmlhttp.status===200){
             var obj = JSON.parse(xmlhttp.responseText);
-            if (obj.valid === 1){
-                localStorage.setItem('token',obj.token);
-                this.checkToken();
-            }else{
-                $("#username").removeClass("is-valid");
-                $("#car_name").removeClass("is-valid");
-                $("#password").removeClass("is-valid");
-                $("#agree").removeClass("is-valid");
-                this.registerMsg=obj.message;
-                this.show=true;
+            if (obj.valid === 1) {
+                var params = {
+                    "Authorization": localStorage.getItem('token')
+                };
+                httpPost("/index", params);
             }
-        },
-    },
-    delimiters:['{[',']}']
-})
+        }
+    }
+    xmlhttp.open("POST","/checkToken",true);
+    xmlhttp.setRequestHeader("Authorization", localStorage.getItem('token'));
+    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.send();
+}
+
+function Register() {
+    var frm = document.getElementById("registerForm")
+    if (frm.checkValidity() === false || !isLicensePlate()) {
+        event.preventDefault();
+        event.stopPropagation();
+        usernameValid();
+        licenseValid();
+        passwordValid();
+        agreeCheckboxValid();
+        return;
+    }
+    var xmlhttp;
+    var username=registerForm.username.value;
+    var car_name=registerForm.car_name.value;
+    var password=registerForm.password.value;
+    if (window.XMLHttpRequest){
+        // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+        xmlhttp=new XMLHttpRequest();
+    }else{
+        // IE6, IE5 浏览器执行代码
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("POST","/doRegister",false);
+    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.send("username="+username+"&car_name="+car_name+"&password="+password);
+    var obj = JSON.parse(xmlhttp.responseText);
+    if (obj.valid === 1){
+        localStorage.setItem('token',obj.token);
+        this.checkToken();
+    }else{
+        $("#username").removeClass("is-valid");
+        $("#car_name").removeClass("is-valid");
+        $("#password").removeClass("is-valid");
+        $("#agree").removeClass("is-valid");
+        document.getElementById("form-msg").innerHTML = obj.message;
+    }
+}
 
 function isLicensePlate() {
     var str = document.getElementById('car_name').value;

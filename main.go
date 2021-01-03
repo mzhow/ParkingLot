@@ -14,8 +14,11 @@ func main() {
 	//	fmt.Println("true")
 	//}
 
-	//detail,_ := dao.UserDetail("qwe")
-	//fmt.Println(detail.Booking.StartTime.String())
+	//detail := dao.UserDetail("user01")
+	//fmt.Println(detail.Booking.StartTime.String(), detail.Spot.HourlyFee)
+	//
+	//var ti time.Time
+	//fmt.Println(ti.String())
 
 	//err := dao.UpdateLoginTime("qwe")
 	//if err != nil {

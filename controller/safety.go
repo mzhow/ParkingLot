@@ -4,6 +4,7 @@ import (
 	"ParkingLot/dao"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/mojocn/base64Captcha"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -37,7 +38,7 @@ type ResData struct {
 
 //生成token
 func CreateToken(username string) string {
-	maxAge := 6
+	maxAge := 60 * 60
 	claims := jwt.StandardClaims{
 		Audience:  username,
 		IssuedAt:  time.Now().Unix(),
@@ -81,4 +82,36 @@ func checkToken(token string) bool {
 		return true
 	}
 	return false
+}
+
+var store = base64Captcha.DefaultMemStore
+
+type Captcha struct {
+	Id   string `json:"id"`
+	B64s string `json:"b64s"`
+}
+
+//  获取验证码
+func GetCaptcha() (string, string) {
+	// 生成默认数字
+	driver := base64Captcha.DefaultDriverDigit
+	// 生成base64图片
+	c := base64Captcha.NewCaptcha(driver, store)
+
+	// 获取
+	id, b64s, err := c.Generate()
+	if err != nil {
+		fmt.Println("Register GetCaptchaPhoto get base64Captcha has err:", err)
+		return "", ""
+	}
+	return id, b64s
+}
+
+// 验证验证码
+func VerifyCaptcha(id string, val string) bool {
+	if id == "" || val == "" {
+		return false
+	}
+	// 同时在内存清理掉这个图片
+	return store.Verify(id, val, true)
 }

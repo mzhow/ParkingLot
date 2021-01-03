@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 func checkErr(err error) {
@@ -67,13 +68,34 @@ func checkTokenHandler(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 }
 
+func getCaptchaHandler(w http.ResponseWriter, r *http.Request) {
+	id, b64s := GetCaptcha()
+	res := Captcha{
+		Id:   id,
+		B64s: b64s,
+	}
+	// 返回客户端验证结果
+	jsonData, err := json.Marshal(res)
+	checkErr(err)
+	_, err = io.WriteString(w, string(jsonData))
+	checkErr(err)
+}
+
 // 检查用户名和密码如果正确则发给用户一个token
 func doLoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
+	captchaId := r.FormValue("captchaId")
+	validateCode := r.FormValue("validateCode")
 	encodePassword, _ := dao.GetEncodePassword(username)
 	res := ResData{}
-	if ComparePasswords(encodePassword, password) == false {
+	if VerifyCaptcha(captchaId, validateCode) == false {
+		// 验证码错误
+		res = ResData{
+			Valid:   0,
+			Message: "验证码错误",
+		}
+	} else if ComparePasswords(encodePassword, password) == false {
 		// 登录失败
 		res = ResData{
 			Valid:   0,
@@ -120,7 +142,7 @@ func doRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	err := dao.InsertCar(carName, 0)
 	checkErr(err)
 	// 向用户表中添加用户信息
-	err = dao.InsertUser(1, dao.GetCarId(carName), username, HashAndSalt(password), 1)
+	err = dao.InsertUser(1, dao.GetCarId(carName), username, HashAndSalt(password), 0, 1)
 	checkErr(err)
 	res := ResData{
 		Valid: 1,
@@ -131,4 +153,125 @@ func doRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	_, err = io.WriteString(w, string(jsonData))
 	checkErr(err)
+}
+
+func doLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.FormValue("Authorization")
+	if checkToken(token) == false {
+		// 如果token不正确则返回403页面
+		forbiddenHandler(w)
+		return
+	}
+	// 更新用户登出时间
+	parseToken, err := ParseToken(token)
+	checkErr(err)
+	username := parseToken.Audience
+	err = dao.UpdateLogoutTime(username)
+	checkErr(err)
+	// 返回主页
+	loginHandler(w, r)
+}
+
+func entryHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.FormValue("Authorization")
+	if checkToken(token) == false {
+		// 如果token不正确则返回403页面
+		forbiddenHandler(w)
+		return
+	}
+	parseToken, err := ParseToken(token)
+	checkErr(err)
+	username := parseToken.Audience
+	bookingId := dao.GetBookingId(username)
+	carId, spotId := dao.GetBookingCarAndSpot(bookingId)
+	// 判断是否已进入车位或者是否错过了预定时间
+	if dao.GetCar(carId).IsParking == 1 ||
+		time.Now().After(dao.GetBookingTime(bookingId).EndTime) ||
+		time.Now().Before(dao.GetBookingTime(bookingId).StartTime) {
+		indexHandler(w, r)
+		return
+	}
+	err = dao.UpdateBookingValid(bookingId, 1)
+	checkErr(err)
+	err = dao.UpdateSpot(spotId, 0)
+	checkErr(err)
+	err = dao.UpdateCarEntryTime(carId)
+	checkErr(err)
+	// 刷新页面
+	indexHandler(w, r)
+}
+
+func outHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.FormValue("Authorization")
+	if checkToken(token) == false {
+		// 如果token不正确则返回403页面
+		forbiddenHandler(w)
+		return
+	}
+	parseToken, err := ParseToken(token)
+	checkErr(err)
+	username := parseToken.Audience
+	bookingId := dao.GetBookingId(username)
+	carId, spotId := dao.GetBookingCarAndSpot(bookingId)
+	// 判断是否未进入车位
+	if dao.GetCar(carId).IsParking == 0 ||
+		time.Now().Before(dao.GetBookingTime(bookingId).StartTime) {
+		indexHandler(w, r)
+		return
+	}
+	// 如果超时重新计算金额
+	if time.Now().After(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)) {
+		extraHours := time.Since(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)).Hours()
+		extraDays := int(extraHours/24 + 1) // 超过22:00算一整天
+		fee := dao.GetSpotDailyFee(spotId) * (float32(extraDays) + 1)
+		err = dao.UpdateUserFee(username, fee) // 更新用户产生的超时费用
+		checkErr(err)
+		// 刷新页面
+		indexHandler(w, r)
+		return
+	}
+	err = dao.UpdateBookingValid(bookingId, 0)
+	checkErr(err)
+	err = dao.UpdateSpot(spotId, 1)
+	checkErr(err)
+	err = dao.UpdateCarOutTime(carId)
+	checkErr(err)
+	// 刷新页面
+	indexHandler(w, r)
+}
+
+func bookingHandler(w http.ResponseWriter, r *http.Request) {
+	//token := r.FormValue("Authorization")
+	//if checkToken(token) == false {
+	//	// 如果token不正确则返回403页面
+	//	forbiddenHandler(w)
+	//	return
+	//}
+	//parseToken, err := ParseToken(token)
+	//checkErr(err)
+	//username := parseToken.Audience
+	//bookingId := dao.GetBookingId(username)
+	//carId, spotId := dao.GetBookingCarAndSpot(bookingId)
+	//// 判断是否未进入车位
+	//if dao.GetCar(carId).IsParking == 0 ||
+	//	time.Now().Before(dao.GetBookingTime(bookingId).StartTime) {
+	//	indexHandler(w, r)
+	//	return
+	//}
+	//// 如果超时重新计算金额
+	//if time.Now().After(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)) {
+	//	extraHours := time.Since(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)).Hours()
+	//	extraDays := int(extraHours / 24 + 1) // 超过22:00算一整天
+	//	extraFee := dao.GetSpotDailyFee(spotId) * float32(extraDays)
+	//	err = dao.AddUserFee(username, extraFee) // 更新用户产生的超时费用
+	//	checkErr(err)
+	//}
+	//err = dao.UpdateBookingValid(bookingId, 0)
+	//checkErr(err)
+	//err = dao.UpdateSpot(spotId, 1)
+	//checkErr(err)
+	//err = dao.UpdateCarOutTime(carId)
+	//checkErr(err)
+	//// 刷新页面
+	//indexHandler(w, r)
 }

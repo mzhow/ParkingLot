@@ -45,9 +45,10 @@ func Handlers() {
 
 	http.HandleFunc("/", loginHandler)
 	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/forgot", forgotHandler)
 	http.HandleFunc("/doLogin", doLoginHandler)
 	http.HandleFunc("/checkToken", checkTokenHandler)
+
+	http.HandleFunc("/getCaptcha", getCaptchaHandler)
 
 	//http.HandleFunc("/adminLogin", controller.AdminLoginHandler)
 
@@ -56,6 +57,9 @@ func Handlers() {
 	//http.HandleFunc("/doLogin", doLoginHandler)
 
 	http.HandleFunc("/doRegister", doRegisterHandler)
-	//http.HandleFunc("/doLogout", doLogoutHandler)
+	http.HandleFunc("/doLogout", doLogoutHandler)
+
+	http.HandleFunc("/entry", entryHandler)
+	http.HandleFunc("/out", outHandler)
 
 }

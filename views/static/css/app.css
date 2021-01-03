@@ -9,7 +9,7 @@ body {
   font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   background-color: #eee;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.7);
   font-weight: 700;
 }
 
@@ -35,6 +35,10 @@ label {
   flex-direction: column;
 }
 
+.model-control {
+  text-align: left;
+}
+
 .modal-dialog {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
@@ -46,7 +50,10 @@ label {
 
 .page-header-extended {
   padding-bottom: 9px;
-  margin: 40px 0 20px;
+  margin: 20px 0 20px;
+  font-size: 40px;
+  color: #3C3C3C;
+  font-weight: 900;
 }
 
 .modal-footer-extended {
@@ -55,12 +62,14 @@ label {
 }
 
 .required-field {
+  margin-top: 5px;
   color: red;
 }
 
 .page-title {
+  font-family: Arial;
   text-align: center;
-  color: #b2b2b2;
+  color: #3C3C3C;
   font-weight: 900;
 }
 
@@ -83,6 +92,32 @@ label {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.double-button {
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 32px;
+  width: 49.7%;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.td-badge {
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 32px;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 #member_search {
   width: 100%;
   border: 0;
@@ -96,7 +131,7 @@ label {
 table {
   border: 1px solid #dee2e6;
   border-spacing: 0;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-radius: 16px;
 }
 
@@ -122,7 +157,11 @@ th:first-child {
 }
 
 .info-table-header-block {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.info-table-footer-block {
+  margin-top: 20px;
 }
 
 #member_search .fa-search {
@@ -178,4 +217,17 @@ input[data-readonly] {
     display: inline-flex;
     width: 100%;
   }
+}
+
+#captcha {
+  border-radius: 2px;
+  cursor: pointer;
+  position: absolute;
+  z-index: 3;
+  height: 40px;
+}
+
+#validateCode {
+  padding-left: 130px;
+  height: 40px;
 }
