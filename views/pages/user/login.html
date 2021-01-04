@@ -38,18 +38,19 @@
 							    	</div>
 								</div>
 
-								<div class="form-msg">
-									<p id="form-msg"></p>
-								</div>
-
 								<div class="form-group">
 									<div>
 										<label for="validateCode">验证码</label>
 									</div>
 									<div id="captcha"></div>
-									<input type="text" class="form-control"
-										   id="validateCode" name="validateCode"
-										   placeholder="请输入验证码">
+									<input type="text" class="form-control"	id="validateCode" name="validateCode" required>
+									<div class="invalid-feedback">
+										请输入验证码
+									</div>
+								</div>
+
+								<div class="form-msg">
+									<p id="form-msg"></p>
 								</div>
 
 								<div class="form-group">

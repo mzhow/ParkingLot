@@ -25,5 +25,7 @@ func main() {
 	//	fmt.Println("ERROR: ", err)
 	//}
 
+	//fmt.Println(dao.GetRequiredSpot(dao.DB, "2021-01-04", "1","1","1"))
+
 	controller.StartUp()
 }

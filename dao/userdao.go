@@ -2,6 +2,7 @@ package dao
 
 import (
 	"ParkingLot/model"
+	"errors"
 )
 
 func GetEncodePassword(username string) (string, error) {
@@ -98,8 +99,28 @@ func GetBookingId(username string) (bookingId int) {
 	return bookingId
 }
 
+func GetCarIdByUsername(username string) (carId int) {
+	query := "SELECT car_id FROM user WHERE username=?"
+	row := DB.QueryRow(query, username)
+	row.Scan(&carId)
+	return carId
+}
+
 func UpdateUserFee(username string, fee float32) error {
 	update := "UPDATE user SET fee=? WHERE username=?"
 	_, err := DB.Exec(update, fee, username)
 	return err
+}
+
+func UpdateUserForNewBooking(username string, bookingId int, fee float32) error {
+	update := "UPDATE user SET booking_id=?, fee=?, valid=0 WHERE username=? AND valid=1"
+	res, err := DB.Exec(update, bookingId, fee, username)
+	if err != nil {
+		return err
+	}
+	affect, _ := res.RowsAffected()
+	if affect != 1 {
+		return errors.New("dao: UpdateUserForNewBooking affect 0 row")
+	}
+	return nil
 }

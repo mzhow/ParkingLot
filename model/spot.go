@@ -19,6 +19,13 @@ type Spot struct {
 	DailyFee float32
 }
 
+type SpotCount struct {
+	TodayIndoor     int `json:"indoor1"`
+	TodayOutdoor    int `json:"outdoor1"`
+	TomorrowIndoor  int `json:"indoor2"`
+	TomorrowOutdoor int `json:"outdoor2"`
+}
+
 /*
 CREATE TABLE IF NOT EXISTS spot (
 	spot_id INT UNSIGNED AUTO_INCREMENT COMMENT '车位ID',

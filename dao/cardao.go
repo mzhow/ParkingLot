@@ -8,7 +8,7 @@ func InsertCar(carName string, isParking int) error {
 	return err
 }
 
-func GetCarId(carName string) (carId int) {
+func GetCarIdByCarName(carName string) (carId int) {
 	query := "SELECT car_id FROM car WHERE car_name=?"
 	row := DB.QueryRow(query, carName)
 	row.Scan(&carId)

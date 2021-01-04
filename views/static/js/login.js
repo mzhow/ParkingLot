@@ -17,7 +17,6 @@ function getCaptcha(){
             var obj = JSON.parse(xmlhttp.responseText);
             document.getElementById("captcha").innerHTML="<img onclick='getCaptcha()' id='captcha' src='"+obj.b64s+"'>";
             localStorage.setItem('captchaId',obj.id);
-            localStorage.setItem('b64s',obj.b64s);
         }
     }
     xmlhttp.open("POST","/getCaptcha",true);

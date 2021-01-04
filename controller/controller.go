@@ -27,7 +27,7 @@ func init() {
 
 func StartUp() {
 	log.Println("start...")
-	//go RabbitMQReceive()
+	go RabbitMQReceive()
 	Handlers()
 	err := http.ListenAndServe(":9090", nil)
 	if err != nil {
@@ -49,10 +49,12 @@ func Handlers() {
 	http.HandleFunc("/checkToken", checkTokenHandler)
 
 	http.HandleFunc("/getCaptcha", getCaptchaHandler)
+	http.HandleFunc("/getSpot", getSpotHandler)
 
 	//http.HandleFunc("/adminLogin", controller.AdminLoginHandler)
 
 	http.HandleFunc("/index", indexHandler)
+	http.HandleFunc("/booking", bookingHandler)
 
 	//http.HandleFunc("/doLogin", doLoginHandler)
 

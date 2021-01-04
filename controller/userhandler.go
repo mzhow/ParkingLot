@@ -2,6 +2,7 @@ package controller
 
 import (
 	"ParkingLot/dao"
+	"ParkingLot/model"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -81,6 +82,20 @@ func getCaptchaHandler(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 }
 
+func getSpotHandler(w http.ResponseWriter, r *http.Request) {
+	res := model.SpotCount{
+		TodayIndoor:     dao.GetTodaySpotCount(1, 1),
+		TodayOutdoor:    dao.GetTodaySpotCount(1, 0),
+		TomorrowIndoor:  dao.GetTomorrowSpotCount(1, 1),
+		TomorrowOutdoor: dao.GetTomorrowSpotCount(1, 0),
+	}
+	// 返回客户端验证结果
+	jsonData, err := json.Marshal(res)
+	checkErr(err)
+	_, err = io.WriteString(w, string(jsonData))
+	checkErr(err)
+}
+
 // 检查用户名和密码如果正确则发给用户一个token
 func doLoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
@@ -142,7 +157,7 @@ func doRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	err := dao.InsertCar(carName, 0)
 	checkErr(err)
 	// 向用户表中添加用户信息
-	err = dao.InsertUser(1, dao.GetCarId(carName), username, HashAndSalt(password), 0, 1)
+	err = dao.InsertUser(1, dao.GetCarIdByCarName(carName), username, HashAndSalt(password), 0, 1)
 	checkErr(err)
 	res := ResData{
 		Valid: 1,
@@ -241,37 +256,91 @@ func outHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func bookingHandler(w http.ResponseWriter, r *http.Request) {
-	//token := r.FormValue("Authorization")
-	//if checkToken(token) == false {
-	//	// 如果token不正确则返回403页面
-	//	forbiddenHandler(w)
-	//	return
-	//}
-	//parseToken, err := ParseToken(token)
-	//checkErr(err)
-	//username := parseToken.Audience
-	//bookingId := dao.GetBookingId(username)
-	//carId, spotId := dao.GetBookingCarAndSpot(bookingId)
-	//// 判断是否未进入车位
-	//if dao.GetCar(carId).IsParking == 0 ||
-	//	time.Now().Before(dao.GetBookingTime(bookingId).StartTime) {
-	//	indexHandler(w, r)
-	//	return
-	//}
-	//// 如果超时重新计算金额
-	//if time.Now().After(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)) {
-	//	extraHours := time.Since(dao.GetBookingTime(bookingId).EndTime.Add(time.Hour)).Hours()
-	//	extraDays := int(extraHours / 24 + 1) // 超过22:00算一整天
-	//	extraFee := dao.GetSpotDailyFee(spotId) * float32(extraDays)
-	//	err = dao.AddUserFee(username, extraFee) // 更新用户产生的超时费用
-	//	checkErr(err)
-	//}
-	//err = dao.UpdateBookingValid(bookingId, 0)
-	//checkErr(err)
-	//err = dao.UpdateSpot(spotId, 1)
-	//checkErr(err)
-	//err = dao.UpdateCarOutTime(carId)
-	//checkErr(err)
-	//// 刷新页面
-	//indexHandler(w, r)
+	token := r.Header.Get("Authorization")
+	captchaId := r.FormValue("captchaId")
+	validateCode := r.FormValue("validateCode")
+	bookingDate := r.FormValue("bookingDate")
+	res := ResData{}
+	if checkToken(token) == false {
+		res = ResData{
+			Valid:   0,
+			Message: "用户登录身份过期或有未完成订单",
+		}
+	} else if VerifyCaptcha(captchaId, validateCode) == false {
+		res = ResData{
+			Valid:   0,
+			Message: "验证码错误",
+		}
+	} else if bookingDate == time.Now().Format("2006-01-02") && time.Now().Hour() >= 21 {
+		res = ResData{
+			Valid:   0,
+			Message: "已不能预约今日车位",
+		}
+	} else if bookingDate == time.Now().Add(time.Hour*24).Format("2006-01-02") && time.Now().Hour() <= 21 {
+		res = ResData{
+			Valid:   0,
+			Message: "22:00开放明日车位预约",
+		}
+	} else {
+		res = ResData{
+			Valid:   1,
+			Message: "正在处理您的订单",
+		}
+		parseToken, err := ParseToken(token)
+		checkErr(err)
+		username := parseToken.Audience
+		req := BookingRequest{
+			Username: username,
+			Date:     bookingDate,
+			Charging: r.FormValue("needCharging"),
+			Indoor:   r.FormValue("chooseIndoor"),
+			Outdoor:  r.FormValue("chooseOutdoor"),
+		}
+		rs, err := json.Marshal(req)
+		checkErr(err)
+		RabbitMQSend(rs)
+	}
+	// 返回客户端验证结果
+	jsonData, err := json.Marshal(res)
+	checkErr(err)
+	_, err = io.WriteString(w, string(jsonData))
+	checkErr(err)
+}
+
+func makeBooking(req BookingRequest) error {
+	tx, err := dao.DB.Begin()
+	if err != nil {
+		return err
+	}
+	spotId, err := dao.GetRequiredSpot(dao.DB, req.Date, req.Charging, req.Indoor, req.Outdoor)
+	if err != nil {
+		log.Print("makeBooking...  cannot get required spot")
+		if err := tx.Rollback(); err != nil {
+			checkErr(err)
+		}
+		return err
+	}
+	carId := dao.GetCarIdByUsername(req.Username)
+	err = dao.InsertBooking(dao.DB, req.Date, carId, spotId)
+	if err != nil {
+		log.Print("makeBooking...  cannot insert booking")
+		if err := tx.Rollback(); err != nil {
+			checkErr(err)
+		}
+		return err
+	}
+	bookingId := dao.GetBookingIdByCarAndSpot(carId, spotId)
+	err = dao.UpdateUserForNewBooking(req.Username, bookingId, dao.GetSpotDailyFee(spotId))
+	if err != nil {
+		log.Print("makeBooking...  cannot update user for new booking")
+		if err := tx.Rollback(); err != nil {
+			checkErr(err)
+		}
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
 }
