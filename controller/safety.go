@@ -36,7 +36,7 @@ type ResData struct {
 	Message  string `json:"message"`
 }
 
-//生成token
+// 生成token
 func CreateToken(username string) string {
 	maxAge := 60 * 60
 	claims := jwt.StandardClaims{
@@ -47,13 +47,11 @@ func CreateToken(username string) string {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(SECRETKEY))
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
 	return tokenString
 }
 
-//解析token
+// 解析token
 func ParseToken(tokenString string) (*jwt.StandardClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -68,6 +66,7 @@ func ParseToken(tokenString string) (*jwt.StandardClaims, error) {
 	}
 }
 
+// 校验token
 func checkToken(token string) bool {
 	if token == "null" || token == "" {
 		return false
@@ -78,7 +77,7 @@ func checkToken(token string) bool {
 	}
 	username := parseToken.Audience
 	// token错误
-	if dao.CheckUsernameValid(username) {
+	if dao.CheckUsername(username) {
 		return true
 	}
 	return false
@@ -107,7 +106,7 @@ func GetCaptcha() (string, string) {
 	return id, b64s
 }
 
-// 验证验证码
+// 校验验证码
 func VerifyCaptcha(id string, val string) bool {
 	if id == "" || val == "" {
 		return false

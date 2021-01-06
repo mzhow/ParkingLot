@@ -35,18 +35,18 @@ func GetBookingIdByCarAndSpot(carId int, spotId int) (bookingId int) {
 	return bookingId
 }
 
-func InsertBooking(db *sql.DB, date string, carId int, spotId int) error {
-	insert := "INSERT INTO booking(car_id,spot_id,start_time,end_time,valid)values(?,?,?,?,1)"
+func InsertBooking(db *sql.DB, date string, carId int, spotId int, valid int) error {
+	insert := "INSERT INTO booking(car_id,spot_id,start_time,end_time,valid)values(?,?,?,?,?)"
 	layout := "2006-01-02 15:04:05"
-	startTime, err := time.Parse(layout, date+" 08:00:00")
+	startTime, err := time.ParseInLocation(layout, date+" 08:00:00", time.Local)
 	if err != nil {
 		return err
 	}
-	endTime, err := time.Parse(layout, date+" 21:00:00")
+	endTime, err := time.ParseInLocation(layout, date+" 21:00:00", time.Local)
 	if err != nil {
 		return err
 	}
-	res, err := db.Exec(insert, carId, spotId, startTime, endTime)
+	res, err := db.Exec(insert, carId, spotId, startTime, endTime, valid)
 	if err != nil {
 		return err
 	}

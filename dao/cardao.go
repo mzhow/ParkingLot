@@ -34,3 +34,15 @@ func UpdateCarOutTime(carId int) error {
 	_, err := DB.Exec(update, 0, timeNow(), carId)
 	return err
 }
+
+func CheckCarIsParking(carId int) bool {
+	query := "SELECT is_parking FROM car WHERE car_id=?"
+	row := DB.QueryRow(query, carId)
+	var isParking int
+	row.Scan(&isParking)
+	if isParking == 1 {
+		return true
+	} else {
+		return false
+	}
+}

@@ -122,5 +122,3 @@ func (manager *Manager) GC() {
 	manager.provider.SessionGC(manager.maxLifeTime)
 	time.AfterFunc(time.Duration(manager.maxLifeTime), func() { manager.GC() })
 }
-
-

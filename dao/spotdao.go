@@ -63,8 +63,7 @@ func GetRequiredSpot(db *sql.DB, date string, charging string, indoor string, ou
 	} else {
 		return 0, errors.New("dao: GetRequiredSpot cannot run while indoor and outdoor both equal to 0")
 	}
-	layout := "2006-01-02 15:04:05"
-	dateTime, err := time.Parse(layout, date+" 08:00:00")
+	dateTime, err := time.ParseInLocation("2006-01-02 15:04:05", date+" 08:00:00", time.Local)
 	if err != nil {
 		return 0, err
 	}

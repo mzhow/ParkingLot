@@ -99,16 +99,26 @@ function makeBooking(){
     }
   }
 
+  var formMsg = document.getElementById("form-msg");
   var today = new Date();
   var nextDate = new Date(today.getTime() + 24*60*60*1000);
   if (today.getHours()>=21 && bookingDate===today.format("yyyy-MM-dd")) {
-    document.getElementById("form-msg").innerHTML = "已不能预约今日车位";
+    formMsg.innerHTML = "已不能预约今日车位";
     return;
   } else if (today.getHours()<=21 && bookingDate===nextDate.format("yyyy-MM-dd")) {
-    document.getElementById("form-msg").innerHTML = "22:00开放明日车位预约";
+    formMsg.innerHTML = "22:00开放明日车位预约";
+    return;
+  } else if (bookingDate===undefined) {
+    formMsg.innerHTML = "日期不能为空";
+    return;
+  } else if (!document.getElementById("chooseIndoor").checked && !document.getElementById("chooseOutdoor").checked) {
+    formMsg.innerHTML = "室内室外至少选一种";
+    return;
+  } else if (bookingForm.validateCode.value === "") {
+    formMsg.innerHTML = "验证码不能为空";
     return;
   } else {
-    document.getElementById("form-msg").innerHTML = "";
+    formMsg.innerHTML = "";
   }
 
   if (document.getElementById("needCharging").checked) {
@@ -133,8 +143,10 @@ function makeBooking(){
     if (xmlhttp.readyState===4 && xmlhttp.status===200){
       var obj = JSON.parse(xmlhttp.responseText);
       if (obj.valid === 0) {
-        document.getElementById("form-msg").innerHTML = obj.message;
+        formMsg.innerHTML = obj.message;
         getCaptcha();
+      } else if (obj.valid === 1) {
+        formMsg.innerHTML = obj.message;
       }
     }
   }
@@ -143,6 +155,13 @@ function makeBooking(){
   xmlhttp.setRequestHeader("Authorization", localStorage.getItem('token'));
   xmlhttp.send("bookingDate="+bookingDate+"&needCharging="+needCharging+"&chooseIndoor="+chooseIndoor+
       "&chooseOutdoor="+chooseOutdoor+"&captchaId="+captchaId+"&validateCode="+validateCode);
+}
+
+function CancelBooking() {
+  let params = {
+    "Authorization": localStorage.getItem('token')
+  };
+  httpPost("/cancelBooking", params);
 }
 
 function Entry() {

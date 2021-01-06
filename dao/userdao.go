@@ -31,7 +31,7 @@ func UserDetail(username string) *model.UserDetail {
 	//		&detail.Booking.CarName, &detail.Booking.SpotName, &detail.Booking.StartTime, &detail.Booking.EndTime)
 	//return detail
 
-	query := "SELECT user_id, role_id, username, car_id, booking_id, fee FROM user WHERE valid=1 AND username=?"
+	query := "SELECT user_id, role_id, username, car_id, booking_id, fee FROM user WHERE username=?"
 	row := DB.QueryRow(query, username)
 	detail := &model.UserDetail{}
 	var roleId, carId, bookingId int
@@ -43,8 +43,8 @@ func UserDetail(username string) *model.UserDetail {
 	return detail
 }
 
-func CheckUsernameValid(username string) bool {
-	query := "SELECT count(*) FROM user WHERE username=? AND valid=1"
+func CheckUsername(username string) bool {
+	query := "SELECT count(*) FROM user WHERE username=?"
 	row := DB.QueryRow(query, username)
 	var count int
 	row.Scan(&count)
@@ -106,9 +106,22 @@ func GetCarIdByUsername(username string) (carId int) {
 	return carId
 }
 
+func GetUserFee(username string) (fee float32) {
+	query := "SELECT fee FROM user WHERE username=?"
+	row := DB.QueryRow(query, username)
+	row.Scan(&fee)
+	return fee
+}
+
 func UpdateUserFee(username string, fee float32) error {
 	update := "UPDATE user SET fee=? WHERE username=?"
 	_, err := DB.Exec(update, fee, username)
+	return err
+}
+
+func UpdateUserValid(username string, valid int) error {
+	update := "UPDATE user SET valid=? WHERE username=?"
+	_, err := DB.Exec(update, valid, username)
 	return err
 }
 

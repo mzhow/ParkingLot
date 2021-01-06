@@ -47,9 +47,17 @@ label {
   margin: auto;
 }
 
+.modal-header{
+  padding: 0.6rem 0.6rem;
+}
+
 .modal-content {
   border: 0;
   border-radius: 8px;
+}
+
+.modal-body {
+  padding: 0.8rem;
 }
 
 .page-header-extended {
@@ -72,6 +80,7 @@ label {
 
 .form-msg p{
   color: #D94600;
+  margin-bottom: 0.5rem;
 }
 
 .page-title {
@@ -135,7 +144,7 @@ label {
   font-weight: 700;
   font-size: 15px;
   border-radius: 32px;
-  width: 50%;
+  width: 60%;
   margin-left: auto;
   margin-right: auto;
 }

@@ -2,13 +2,14 @@ package model
 
 import "time"
 
-//type Booking struct {
-//	BookingId int
-//	CarId     int
-//	SpotId    int
-//	StartTime time.Time
-//	EndTime   time.Time
-//}
+type BookingDetail struct {
+	BookingId int
+	CarId     int
+	SpotId    int
+	StartTime time.Time
+	EndTime   time.Time
+	Valid     int
+}
 
 type Booking struct {
 	CarName   string
@@ -24,7 +25,7 @@ CREATE TABLE IF NOT EXISTS booking (
 	spot_id INT UNSIGNED NOT NULL COMMENT '车辆ID',
 	start_time DATETIME NOT NULL COMMENT '开始时间',
 	end_time DATETIME NOT NULL COMMENT '结束时间',
-	valid INT NOT NULL COMMENT '订单是否有效',
+	valid INT NOT NULL COMMENT '订单是否有效：下单时赋1，取消或完成后赋0',
     PRIMARY KEY (booking_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 */

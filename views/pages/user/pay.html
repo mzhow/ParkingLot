@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="Mei Zuhao">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Login - Parking Lot System</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/login.css">
+	<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+</head>
+
+<body class="login-page">
+	<section class="h-100">
+		<div class="container h-100">
+			<div class="row justify-content-md-center h-100">
+				<div class="card-wrapper">
+					<div class="brand">
+						<img src="img/logo.jpg" alt="logo">
+					</div>
+					<div class="card fat" id="login">
+						<div class="card-body">
+							<h4 class="card-title">支付</h4>
+							<div class="alert alert-primary" role="alert">
+								您有￥{{.}}待支付
+							</div>
+							<button onclick="Pay()" type="button" class="btn btn-primary btn-block">
+								支付
+							</button>
+						</div>
+					</div>
+					<div class="footer">
+						Copyright &copy; 2020 &mdash; Mei Zuhao 
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+	function Pay() {
+		let params = {
+			"Authorization": localStorage.getItem('token')
+		};
+		httpPost("/payFee", params);
+	}
+
+	//发送POST请求跳转到指定页面
+	function httpPost(URL, PARAMS) {
+		var temp = document.createElement("form");
+		temp.action = URL;
+		temp.method = "POST";
+		temp.style.display = "none";
+
+		for (var x in PARAMS) {
+			var opt = document.createElement("textarea");
+			opt.name = x;
+			opt.value = PARAMS[x];
+			temp.appendChild(opt);
+		}
+
+		document.body.appendChild(temp);
+		temp.submit();
+
+		return temp;
+	}
+</script>
+</body>
+</html>

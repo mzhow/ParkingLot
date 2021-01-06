@@ -2,14 +2,6 @@ package model
 
 import "time"
 
-//type Car struct {
-//	CarId     int
-//	CarNumber string
-//	IsParking int
-//	EntryTime time.Time
-//	OutTime   time.Time
-//}
-
 type Car struct {
 	CarName   string
 	IsParking int

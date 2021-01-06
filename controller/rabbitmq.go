@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"github.com/streadway/amqp"
-	"log"
 )
 
 type BookingRequest struct {
@@ -14,19 +13,19 @@ type BookingRequest struct {
 	Outdoor  string `json:"outdoor"`
 }
 
-func failOnError(err error, msg string) {
+func checkErrWithMsg(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		Error.Printf("%s: %s", msg, err)
 	}
 }
 
 func RabbitMQSend(body []byte) {
 	conn, err := amqp.Dial("amqp://guest:guest@47.97.82.144:5672/")
-	failOnError(err, "RabbitMQ...  failed to connect to RabbitMQ")
+	checkErrWithMsg(err, "RabbitMQ...  failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError(err, "RabbitMQ...  failed to open a channel")
+	checkErrWithMsg(err, "RabbitMQ...  failed to open a channel")
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
@@ -37,7 +36,7 @@ func RabbitMQSend(body []byte) {
 		false,        // no-wait
 		nil,          // arguments
 	)
-	failOnError(err, "RabbitMQ...  failed to declare a queue")
+	checkErrWithMsg(err, "RabbitMQ...  failed to declare a queue")
 
 	err = ch.Publish(
 		"",     // exchange
@@ -48,17 +47,17 @@ func RabbitMQSend(body []byte) {
 			ContentType: "text/plain",
 			Body:        body,
 		})
-	log.Printf("RabbitMQ...  sent %s", body)
-	failOnError(err, "RabbitMQ...  failed to publish a message")
+	logInfo("RabbitMQ...  sent %s", body)
+	checkErrWithMsg(err, "RabbitMQ...  failed to publish a message")
 }
 
 func RabbitMQReceive() {
 	conn, err := amqp.Dial("amqp://guest:guest@47.97.82.144:5672/")
-	failOnError(err, "RabbitMQ...  failed to connect to RabbitMQ")
+	checkErrWithMsg(err, "RabbitMQ...  failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError(err, "RabbitMQ...  failed to open a channel")
+	checkErrWithMsg(err, "RabbitMQ...  failed to open a channel")
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
@@ -69,7 +68,7 @@ func RabbitMQReceive() {
 		false,        // no-wait
 		nil,          // arguments
 	)
-	failOnError(err, "RabbitMQ...  failed to declare a queue")
+	checkErrWithMsg(err, "RabbitMQ...  failed to declare a queue")
 
 	msgs, err := ch.Consume(
 		q.Name, // queue
@@ -80,21 +79,21 @@ func RabbitMQReceive() {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError(err, "RabbitMQ...  failed to register a consumer")
+	checkErrWithMsg(err, "RabbitMQ...  failed to register a consumer")
 
 	forever := make(chan bool)
 
 	go func() {
 		for d := range msgs {
-			log.Printf("RabbitMQ...  received a message: %s", d.Body)
+			logInfo("RabbitMQ...  received a message: ", d.Body)
 			req := BookingRequest{}
 			err := json.Unmarshal(d.Body, &req)
-			failOnError(err, "Failed to unmarshal the []byte")
+			checkErrWithMsg(err, "Failed to unmarshal the []byte")
 			err = makeBooking(req)
-			failOnError(err, "Failed to make a Booking")
+			checkErrWithMsg(err, "Failed to make a Booking")
 		}
 	}()
 
-	log.Println("RabbitMQ is waiting for messages...")
+	logInfo("RabbitMQ is waiting for messages...")
 	<-forever
 }

@@ -28,10 +28,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("views/pages/user/login.html")
-	checkErr(err)
-	err = tmpl.Execute(w, nil)
-	checkErr(err)
+	if r.URL.Path == "/" {
+		tmpl, err := template.ParseFiles("views/pages/user/login.html")
+		checkErr(err)
+		err = tmpl.Execute(w, nil)
+		checkErr(err)
+	}
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,5 +47,12 @@ func forbiddenHandler(w http.ResponseWriter) {
 	tmpl, err := template.ParseFiles("views/pages/error/403.html")
 	checkErr(err)
 	err = tmpl.Execute(w, nil)
+	checkErr(err)
+}
+
+func payHandler(w http.ResponseWriter, r *http.Request, username string) {
+	tmpl, err := template.ParseFiles("views/pages/user/pay.html")
+	checkErr(err)
+	err = tmpl.Execute(w, dao.GetUserFee(username))
 	checkErr(err)
 }

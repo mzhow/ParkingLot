@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>User Details</title>
+
+    <link href="admin/css/bootstrap.min.css" rel="stylesheet">
+    <link href="admin/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Toastr style -->
+    <link href="admin/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+
+    <!-- Gritter -->
+    <link href="admin/js/plugins/gritter/jquery.gritter.css" rel="stylesheet">
+	
+	<!-- Sweet Alert -->
+    <link href="admin/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <link href="admin/css/animate.css" rel="stylesheet">
+    <link href="admin/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <span>
+                            <img alt="image" class="img-circle" width="45" src="admin/img/panda.jpg" />
+                            </span>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Admin</strong>
+                             </span> <span class="text-muted text-xs block">管理员 <b class="caret"></b></span> </span> </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a href="/">用户登录页面</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/adminLogout">退出登录</a></li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">
+                            Parking
+                        </div>
+					</li>
+					<li>
+                        <a href="/adminUsersDetail"><span class="nav-label">用户详情</span></a>
+                    </li>
+                    <li>
+                        <a href="/adminSpotsDetail"><span class="nav-label">车位详情</span></a>
+                    </li>
+                    <li class="active">
+                        <a href="/adminBookingsDetail"><span class="nav-label">订单详情</span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+        </div>
+            <ul class="nav navbar-top-links navbar-right">
+                <li>
+                    <span class="m-r-sm text-muted welcome-message">欢迎进入ParkingLot管理系统</span>
+                </li>
+                <li>
+                    <a href="/adminLogout">
+                        <i class="fa fa-sign-out"></i> 退出登录
+                    </a>
+                </li>
+            </ul>
+        </nav>
+		</div>
+		    <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h2>用户详情</h2>
+                    <ol class="breadcrumb">
+                        <li>
+                            <a href="/adminUsersDetail">主页</a>
+                        </li>
+                        <li class="active">
+                            <strong>用户详情</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div class="col-lg-2">
+
+                </div>
+            </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight ecommerce">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                            <table class="footable table table-stripped toggle-arrow-tiny">
+                                <thead>
+                                <tr>
+                                    <th>index</th>
+									<th>booking_id</th>
+                                    <th>car_id</th>
+                                    <th>spot_id</th>
+                                    <th>start_time</th>
+                                    <th>end_time</th>
+									<th>valid</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+								{{range $index, $booking := .bookings}}
+                                <tr>
+                                    <td>
+                                       {{$index}}
+                                    </td>
+                                    <td>
+                                       {{$booking.BookingId}}
+                                    </td>									
+                                    <td>
+										{{$booking.CarId}}
+                                    </td>
+                                    <td>
+                                        {{$booking.SpotId}}
+                                    </td>
+                                    <td>
+                                        {{$booking.StartTime}}
+                                    </td>
+									<td>
+                                        {{$booking.EndTime}}
+									</td>
+                                    <td>
+                                        {{$booking.Valid}}
+                                    </td>
+                                </tr>
+								{{end}}
+                                </tbody>
+                                <tfoot>
+								<tr>
+                                <td colspan="8" class="footable-visible">
+								<ul class="pagination pull-right">
+									{{if ne .paginator.Page 1}}
+										<li class="footable-page"><a href="javascript:goToPage(1);">首页</a></li>
+										<li class="footable-page"><a href="javascript:goToPage({{.paginator.LastPage}});">上一页</a></li>
+									{{end}}
+									{{range $k, $v := .paginator.PageNums}}
+									{{if eq $v $.paginator.Page}}
+										<li class="footable-page active"><a href="javascript:goToPage({{$v}})">{{$v}}</a></li>
+									{{else}}
+									<li class="footable-page"><a href="javascript:goToPage({{$v}});">{{$v}}</a></li>
+									{{end}}
+									{{end}}
+									{{if ne .paginator.Page .paginator.PageTotal}}
+									<li class="footable-page"><a href="javascript:goToPage({{.paginator.NextPage}});">下一页</a></li>
+									<li class="footable-page"><a href="javascript:goToPage({{.paginator.PageTotal}});">尾页</a></li>
+									{{end}}
+								</ul>
+                                </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Mainly scripts -->
+    <script src="admin/js/jquery-2.1.1.js"></script>
+    <script src="admin/js/bootstrap.min.js"></script>
+    <script src="admin/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="admin/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+    <!-- Flot -->
+    <script src="admin/js/plugins/flot/jquery.flot.js"></script>
+    <script src="admin/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="admin/js/plugins/flot/jquery.flot.spline.js"></script>
+    <script src="admin/js/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="admin/js/plugins/flot/jquery.flot.pie.js"></script>
+
+    <!-- Peity -->
+    <script src="admin/js/plugins/peity/jquery.peity.min.js"></script>
+    <script src="admin/js/demo/peity-demo.js"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="admin/js/inspinia.js"></script>
+    <script src="admin/js/plugins/pace/pace.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="admin/js/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- GITTER -->
+    <script src="admin/js/plugins/gritter/jquery.gritter.min.js"></script>
+
+    <!-- Sparkline -->
+    <script src="admin/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Sparkline demo data  -->
+    <script src="admin/js/demo/sparkline-demo.js"></script>
+
+    <!-- ChartJS-->
+    <script src="admin/js/plugins/chartJs/Chart.min.js"></script>
+
+    <!-- Toastr -->
+    <script src="admin/js/plugins/toastr/toastr.min.js"></script>
+
+	<!-- Data picker -->
+    <script src="admin/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+
+    <!-- FooTable -->
+    <script src="admin/js/plugins/footable/footable.all.min.js"></script>
+
+	<!-- Sweet alert -->
+    <script src="admin/js/plugins/sweetalert/sweetalert.min.js"></script>
+	
+	<script>
+		function goToPage(page){
+			window.location.href="/adminBookingsDetail?page=" + page;
+		}
+	</script>
+</body>
+
+</html>

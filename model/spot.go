@@ -1,15 +1,14 @@
 package model
 
-//type Spot struct {
-//	SpotId      int
-//	SpotName    string
-//	SpotSection string
-//	IsEmpty     int
-//	Indoor      int
-//	Charging    int
-//	HourlyFee   int
-//	Valid       int
-//}
+type SpotDetail struct {
+	SpotId   int
+	SpotName string
+	IsEmpty  int
+	Indoor   int
+	Charging int
+	DailyFee float32
+	Valid    int
+}
 
 type Spot struct {
 	SpotName string
