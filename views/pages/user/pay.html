@@ -44,7 +44,8 @@
 <script>
 	function Pay() {
 		let params = {
-			"Authorization": localStorage.getItem('token')
+			"Authorization": localStorage.getItem('token'),
+			"PathName": window.location.pathname,
 		};
 		httpPost("/payFee", params);
 	}

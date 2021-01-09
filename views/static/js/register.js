@@ -56,7 +56,7 @@ function Register() {
     var obj = JSON.parse(xmlhttp.responseText);
     if (obj.valid === 1){
         localStorage.setItem('token',obj.token);
-        this.checkToken();
+        checkToken();
     }else{
         $("#username").removeClass("is-valid");
         $("#car_name").removeClass("is-valid");

@@ -165,6 +165,7 @@ func doLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	logInfo(httpReqInfo(r) + " username: " + username + " user logout")
 	checkErr(err)
 	// 返回主页
+	r.URL.Path = "/"
 	loginHandler(w, r)
 }
 
@@ -421,5 +422,17 @@ func payFeeHandler(w http.ResponseWriter, r *http.Request) {
 	err = dao.UpdateUserFee(username, 0)
 	logInfo(httpReqInfo(r) + " username: " + username + " pay fee")
 	checkErr(err)
+	if r.FormValue("PathName") == "/out" {
+		bookingId := dao.GetBookingId(username)
+		carId, spotId := dao.GetBookingCarAndSpot(bookingId)
+		err = dao.UpdateSpot(spotId, 1)
+		logInfo(httpReqInfo(r) + " username: " + username + " update spot")
+		checkErr(err)
+		err = dao.UpdateCarOutTime(carId)
+		logInfo(httpReqInfo(r) + " username: " + username + " update car out_time")
+		checkErr(err)
+		err = dao.UpdateBookingValid(dao.GetBookingId(username), 0)
+		logInfo(httpReqInfo(r) + " username: " + username + " update booking valid to 0")
+	}
 	indexHandler(w, r)
 }
