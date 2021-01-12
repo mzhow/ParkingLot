@@ -26,7 +26,7 @@ func ComparePasswords(encodePassword string, loginPassword string) bool {
 }
 
 const (
-	SECRETKEY = "3bf84hr2g1xr4i96pe7v5y" // 私钥
+	SECRETKEY = "" // 私钥，重新部署时需要添加
 )
 
 type ResData struct {

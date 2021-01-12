@@ -134,8 +134,12 @@
 如需重新编译该应用，则还需以下操作：
 
 - 安装MySQL，见教程[Linux 安装MySQL](https://www.cnblogs.com/wangpeng00700/p/13539856.html)。
+
 - 新建数据库并加入数据：由ParkingLotData.sql文件导入。
+
 - 修改dao/initdao.go中有关初始化数据库的代码，包括IP地址和账号。
+
+- 在controller/safety.go中添加私钥SECRETKEY。
 
 - 安装RabbitMQ：见教程[Linux centos7安装RabbitMQ](https://www.jianshu.com/p/ee9f7594212b)。
 
