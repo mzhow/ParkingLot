@@ -18,6 +18,7 @@
 │  main // linux编译后程序
 │  main.exe // windows编译后程序
 │  main.go // 项目入口
+│  ParkingLotData.sql // 初始化数据库文件
 │  README.md // 项目文档
 │
 ├─.idea
